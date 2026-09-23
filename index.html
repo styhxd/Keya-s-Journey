@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d0c1d" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Keya's Journey</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +22,12 @@
         --color-text: #e5e7eb; /* Gray 200 */
         --color-text-dim: #9ca3af; /* Gray 400 */
         --color-border: rgba(255, 255, 255, 0.1);
+      }
+
+      html, body {
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
       }
 
       body {
@@ -1432,6 +1442,156 @@
           animation: health-flash-green 0.5s ease-out;
       }
 
+      /* --- TITLE SCREEN --- */
+      .menu-screen::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse at 80% 100%, color-mix(in srgb, var(--color-primary) 22%, transparent), transparent 46%),
+          radial-gradient(ellipse at 12% 0%, color-mix(in srgb, var(--color-secondary) 18%, transparent), transparent 42%),
+          radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 38%);
+      }
+      .menu-safe {
+        padding-top: max(0.75rem, env(safe-area-inset-top));
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+        padding-left: max(1.25rem, env(safe-area-inset-left));
+        padding-right: max(1.25rem, env(safe-area-inset-right));
+      }
+      .menu-hit {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .menu-enter {
+        animation: menu-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      .menu-enter-delayed {
+        animation: menu-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+      }
+      .menu-enter-late {
+        animation: menu-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+      }
+      @keyframes menu-rise {
+        from { opacity: 0; transform: translateY(18px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .menu-hero {
+        width: 15rem;
+        height: 15rem;
+      }
+      .menu-aurora {
+        position: absolute;
+        inset: -18%;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 50% 48%, color-mix(in srgb, var(--color-primary) 55%, transparent) 0%, transparent 58%),
+          radial-gradient(circle at 32% 58%, color-mix(in srgb, var(--color-secondary) 40%, transparent) 0%, transparent 48%),
+          radial-gradient(circle at 68% 42%, color-mix(in srgb, var(--color-accent) 32%, transparent) 0%, transparent 46%);
+        filter: blur(22px);
+        animation: aurora-breathe 7s ease-in-out infinite;
+        pointer-events: none;
+      }
+      @keyframes aurora-breathe {
+        0%, 100% { transform: scale(1); opacity: 0.85; }
+        50% { transform: scale(1.12); opacity: 1; }
+      }
+      .menu-orbit {
+        position: absolute;
+        inset: 8%;
+        border-radius: 50%;
+        animation: menu-spin 22s linear infinite;
+        pointer-events: none;
+      }
+      .menu-mote {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        margin-left: -2.5px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 10px 3px color-mix(in srgb, var(--color-accent) 70%, white);
+      }
+      .menu-mote:nth-child(2) { top: auto; bottom: 12%; left: 12%; }
+      .menu-mote:nth-child(3) { top: 38%; left: auto; right: 6%; }
+      @keyframes menu-spin {
+        to { transform: rotate(360deg); }
+      }
+      .menu-float-side {
+        animation: menu-side-float 4s ease-in-out infinite;
+      }
+      .menu-float-side-delayed {
+        animation-delay: -2s;
+      }
+      @keyframes menu-side-float {
+        0%, 100% { transform: translateY(-50%) translateX(var(--tx, 0)) translateY(0); }
+        50% { transform: translateY(-50%) translateX(var(--tx, 0)) translateY(-6px); }
+      }
+      .menu-play-btn {
+        background: linear-gradient(120deg, var(--color-primary), var(--color-secondary), var(--color-primary));
+        background-size: 220% 220%;
+        animation: menu-play-shift 7s ease infinite;
+        box-shadow: 0 10px 32px color-mix(in srgb, var(--color-primary) 42%, transparent), inset 0 1px 0 rgba(255,255,255,0.28);
+        border: 1px solid rgba(255,255,255,0.22);
+        transition: transform 0.15s ease, filter 0.15s ease;
+        letter-spacing: 0.12em;
+      }
+      .menu-play-btn:hover { filter: brightness(1.08); }
+      .menu-play-btn:active { transform: scale(0.975); }
+      @keyframes menu-play-shift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .menu-dock-btn {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.12);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      }
+      .menu-dock-btn:hover {
+        background: rgba(255,255,255,0.12);
+        border-color: rgba(255,255,255,0.28);
+      }
+      .menu-dock-btn:active { transform: scale(0.96); }
+      .menu-backdrop-in { animation: menu-fade 0.28s ease both; }
+      .menu-sheet-in { animation: menu-sheet 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+      @keyframes menu-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes menu-sheet {
+        from { opacity: 0; transform: translateY(28px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      body.menu-active #studio-footer {
+        opacity: 0;
+        pointer-events: none;
+      }
+      @media (max-height: 640px) {
+        .menu-hero { width: 8.5rem !important; height: 8.5rem !important; }
+      }
+      @media (max-height: 520px) {
+        .menu-screen { justify-content: center; }
+        .menu-hero { display: none !important; }
+        .menu-enter-delayed { flex: 0 0 auto !important; min-height: 0 !important; margin: 0 !important; }
+        .menu-screen svg { max-height: 5.5rem; }
+        .menu-credit { display: none; }
+        .menu-dock-btn { min-height: 3.15rem !important; }
+        .menu-play-btn { min-height: 3.1rem !important; }
+        .menu-safe { padding-top: max(0.4rem, env(safe-area-inset-top)); padding-bottom: max(0.4rem, env(safe-area-inset-bottom)); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .menu-enter, .menu-enter-delayed, .menu-enter-late,
+        .menu-aurora, .menu-orbit, .menu-play-btn, .menu-float-side,
+        .menu-sheet-in, .menu-backdrop-in, .star-anim {
+          animation: none !important;
+        }
+      }
+
     </style>
   <script type="importmap">
 {
@@ -1480,7 +1640,7 @@
       </defs>
     </svg>
     <script type="module" src="/index.tsx"></script>
-    <footer class="fixed bottom-2 right-4 text-xs text-gray-500 z-50">
+    <footer id="studio-footer" class="fixed bottom-2 right-4 text-xs text-gray-500 z-50">
       &copy; 2025 Estúdio CRIA. All Rights Reserved.
     </footer>
   </body>

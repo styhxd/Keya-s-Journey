@@ -7,7 +7,8 @@ import { gameService } from './services/gameService';
 import { audioService } from './services/audioService';
 import { PALETTES } from './data/palettes';
 import { TEXTS } from './data/narrative';
-import { SwordIcon, MusicIcon, PlayIcon, RefreshIcon, CogIcon, StarIcon, BookOpenIcon, CloseIcon, FleeIcon, HeartIcon, SkullIcon } from './components/icons';
+import { RefreshIcon, CogIcon, StarIcon, CloseIcon, HeartIcon, SkullIcon } from './components/icons';
+import { StartScreen, GameLogo } from './components/StartScreen';
 import { FightGameScreen } from './components/FightGame';
 import { RhythmGameScreen } from './components/RhythmGame';
 import { LoadingOverlay } from './components/LoadingOverlay';
@@ -21,37 +22,6 @@ import { FadingWordText } from './components/FadingWordText';
 import { AuraGauge } from './components/AuraGauge';
 import { EncounterScreen } from './components/EncounterScreen';
 import CheatAbilitySelector from './components/CheatAbilitySelector';
-
-const GameLogo = React.memo(() => (
-    <svg width="300" height="150" viewBox="0 0 300 150" className="drop-shadow-lg w-full max-w-lg">
-        <defs>
-            <linearGradient id="logo-gradient-primary" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="var(--color-primary)" />
-                <stop offset="100%" stopColor="var(--color-accent)" />
-            </linearGradient>
-            <linearGradient id="logo-gradient-secondary" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="var(--color-secondary)" />
-                <stop offset="100%" stopColor="var(--color-primary)" />
-            </linearGradient>
-             <filter id="logo-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-                <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                </feMerge>
-            </filter>
-        </defs>
-        <g className="font-title" filter="url(#logo-glow)">
-            <text x="50%" y="70" fill="url(#logo-gradient-primary)" textAnchor="middle" fontSize="64" letterSpacing="8">
-                KEYA'S
-            </text>
-            <text x="50%" y="130" fill="url(#logo-gradient-secondary)" textAnchor="middle" fontSize="52" letterSpacing="4">
-                JOURNEY
-            </text>
-        </g>
-    </svg>
-));
-GameLogo.displayName = 'GameLogo';
 
 type ResultInfo = { key: string; replacements?: Record<string, string | number> };
 type LoadingInfo = { isVisible: boolean, message: string };
@@ -1443,11 +1413,18 @@ const App = () => {
         }
     };
     
+    const isTitleScreen = gameState === GameState.START_SCREEN;
+
     return (
-        <div className="h-screen w-screen flex flex-col items-center justify-center p-1 sm:p-2 selection:bg-[var(--color-primary)] selection:text-white">
+        <div className={`h-[100dvh] w-screen flex flex-col items-center justify-center ${isTitleScreen ? 'p-0' : 'p-1 sm:p-2'} selection:bg-[var(--color-primary)] selection:text-white`}>
             <LoadingOverlay isVisible={loadingInfo.isVisible} message={loadingInfo.message} />
             {isRadianceFlashing && <div className="fixed inset-0 bg-white z-[100] animate-radiance-flash" />}
             
+            {isTitleScreen ? (
+                <div className={`w-full h-full relative transition-all duration-500 ${isGamePaused ? 'filter blur-sm scale-[0.98]' : ''}`}>
+                    {renderContent()}
+                </div>
+            ) : (
             <div className={`w-full h-full max-w-md sm:max-w-2xl lg:max-w-6xl mx-auto glassmorphic-panel rounded-2xl shadow-2xl relative transition-all duration-500 ${isGamePaused ? 'filter blur-sm scale-95' : ''}`}>
                 <div className="p-2 sm:p-4 md:p-6 h-full flex flex-col">
                     <div key={gameState} className="screen-transition-container animate-pop-in">
@@ -1455,6 +1432,7 @@ const App = () => {
                     </div>
                 </div>
             </div>
+            )}
             
             {isGameInProgress &&
                 <button onClick={openSettings} aria-label="Open Settings" className="absolute top-3 right-3 z-20 p-2 bg-black/30 hover:bg-black/50 rounded-full text-gray-300 hover:text-white transition-all duration-200 group">
@@ -1468,7 +1446,7 @@ const App = () => {
             )}
 
             {isSettingsOpen && (
-                <div className="fixed inset-0 z-30">
+                <div className="fixed inset-0 z-[60]">
                     <SettingsScreen 
                         settings={settings} 
                         setSettings={setSettings} 
@@ -1514,74 +1492,6 @@ const ErrorDisplay = React.memo(({ message, onRestart, t }: { message: string, o
     </div>
 ));
 ErrorDisplay.displayName = 'ErrorDisplay';
-
-const StartScreen: React.FC<{ onStart: (difficulty: Difficulty) => void; onOpenSettings: () => void; onOpenEndings: () => void; onOpenCredits: () => void; t: (key: string, replacements?: Record<string, string | number>) => string; }> = ({ onStart, onOpenSettings, onOpenEndings, onOpenCredits, t }) => {
-    const [stars, setStars] = useState<{id: number, left: string, size: number, duration: string, delay: string}[]>([]);
-
-    useEffect(() => {
-        const createStar = (id: number) => ({
-            id,
-            left: `${Math.random() * 100}%`,
-            size: 1 + Math.random() * 1.5,
-            duration: `${20 + Math.random() * 30}s`,
-            delay: `-${Math.random() * 50}s`
-        });
-        setStars(Array.from({length: 15}, (_, i) => createStar(i)));
-    }, []);
-
-    const difficultyButtonClass = "font-title text-xl text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out w-40";
-
-    return (
-        <div className="text-center flex-grow flex flex-col justify-around items-center p-4 relative overflow-hidden">
-            <div className="absolute inset-0 z-0 h-screen">
-                {stars.map(star => (
-                    <div
-                        key={star.id}
-                        className="star-anim"
-                        style={{
-                            left: star.left,
-                            width: `${star.size}px`,
-                            height: `${star.size}px`,
-                            opacity: star.size / 3,
-                            filter: `blur(${3 - star.size}px)`,
-                            animationDuration: star.duration,
-                            animationDelay: star.delay,
-                        }}
-                    />
-                ))}
-            </div>
-            <div/>
-            <div className="z-10"><GameLogo /></div>
-            <div className="flex flex-col items-center space-y-4 w-full px-4 z-10">
-                 <p className="font-title text-xl text-gray-300 -mb-2">{t('ui.selectDifficulty')}</p>
-                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 justify-center">
-                    <button onClick={() => onStart('Normal')} className={`${difficultyButtonClass} bg-gradient-to-br from-green-500 to-emerald-600 hover:brightness-110 shadow-green-500/30`}>
-                       {t('ui.difficultyNormal')}
-                    </button>
-                     <button onClick={() => onStart('Hard')} className={`${difficultyButtonClass} bg-gradient-to-br from-amber-500 to-orange-600 hover:brightness-110 shadow-amber-500/30`}>
-                        {t('ui.difficultyHard')}
-                    </button>
-                     <button onClick={() => onStart('Requiem')} className={`${difficultyButtonClass} bg-gradient-to-br from-red-600 to-rose-700 hover:brightness-110 shadow-red-600/30`}>
-                        {t('ui.difficultyRequiem')}
-                    </button>
-                </div>
-                 <div className="flex flex-col items-center justify-center gap-4 w-full max-w-md pt-4">
-                    <div className="flex flex-wrap items-center justify-center gap-4">
-                        <button onClick={onOpenEndings} className="font-title text-lg bg-white/5 border-2 border-white/20 hover:bg-white/20 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out flex-grow sm:flex-grow-0 flex items-center justify-center backdrop-blur-sm">
-                            <BookOpenIcon className="w-5 h-5 mr-2" /> {t('ui.fates')}
-                        </button>
-                        <button onClick={onOpenSettings} className="font-title text-lg bg-white/5 border-2 border-white/20 hover:bg-white/20 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out flex-grow sm:flex-grow-0 flex items-center justify-center backdrop-blur-sm">
-                            <CogIcon className="w-5 h-5 mr-2" /> {t('ui.settings')}
-                        </button>
-                    </div>
-                    <button onClick={onOpenCredits} className="font-title text-lg bg-white/5 border-2 border-white/20 hover:bg-white/20 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out flex-grow sm:flex-grow-0 flex items-center justify-center backdrop-blur-sm">
-                        <StarIcon className="w-5 h-5 mr-2" /> {t('ui.credits')}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 const AuraUpdateScreen: React.FC<{ oldAlignment: number, newAlignment: number, onContinue: () => void, t: (key: string, replacements?: Record<string, string | number>) => string }> = React.memo(({ oldAlignment, newAlignment, onContinue, t }) => {
     const [currentAlignment, setCurrentAlignment] = useState(oldAlignment);
